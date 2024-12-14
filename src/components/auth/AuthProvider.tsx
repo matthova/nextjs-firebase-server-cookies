@@ -4,6 +4,7 @@ import {
   beforeAuthStateChanged,
   getAuth,
   onIdTokenChanged,
+  signInAnonymously,
   type User,
 } from "firebase/auth";
 import * as React from "react";
@@ -61,8 +62,13 @@ export function AuthProvider({
     };
   }, []);
 
+  React.useEffect(() => {
+    if (initialUser == null) {
+      signInAnonymously(getAuth());
+    }
+  }, [initialUser]);
+
   if (user == null) {
-    console.log("momentarily no user");
     return <div>Loading...</div>;
   }
 
