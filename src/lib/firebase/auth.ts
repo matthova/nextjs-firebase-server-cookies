@@ -1,17 +1,12 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged as _onAuthStateChanged,
   linkWithPopup,
   updateProfile,
   signInWithRedirect,
 } from "firebase/auth";
 
 import { auth } from "./clientApp";
-
-export function onAuthStateChanged(cb) {
-  return _onAuthStateChanged(auth, cb);
-}
 
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
@@ -43,6 +38,6 @@ export async function signOut() {
   try {
     return auth.signOut();
   } catch (error) {
-    console.error("Error signing out with Google", error);
+    console.error("Error signing out", error);
   }
 }
