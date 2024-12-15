@@ -2,11 +2,7 @@
 
 import { usePrevious } from "@uidotdev/usehooks";
 import { useUser } from "@/components/auth/useUser";
-import {
-  signInWithGoogle,
-  signOut,
-  signUpWithGoogle,
-} from "@/lib/firebase/auth";
+import { signUpWithGoogle, signOut } from "@/lib/firebase/auth";
 import React from "react";
 
 export function CtaButton() {
@@ -31,7 +27,9 @@ export function CtaButton() {
   async function handleSignIn() {
     // TODO - consider warning user existing content will be lost if they sign in
     try {
-      await signInWithGoogle();
+      await signUpWithGoogle({
+        signInIfAccountExists: true,
+      });
     } catch (ex) {
       console.error("Google Sign in failure", ex);
     }
@@ -64,6 +62,11 @@ export function CtaButton() {
 
 export function UserInfo() {
   const { user } = useUser();
+  const displayName =
+    user.displayName ??
+    user.providerData.find((p) => p.displayName)?.displayName;
+  const photoUrl =
+    user.photoURL ?? user.providerData.find((p) => p.photoURL)?.photoURL;
   return (
     <>
       <h1>
@@ -71,11 +74,11 @@ export function UserInfo() {
       </h1>
       <div>
         <div>Is Anonymous: {user.isAnonymous ? "true" : "false"}</div>
-        {user.displayName == null || user.displayName === "" ? null : (
-          <div>{user.displayName}</div>
+        {displayName == null || displayName === "" ? null : (
+          <div>{displayName}</div>
         )}
-        {user.photoURL == null || user.photoURL === "" ? null : (
-          <img src={user.photoURL} alt="User profile" />
+        {photoUrl == null || photoUrl === "" ? null : (
+          <img src={photoUrl} alt="User profile" />
         )}
         {/* {Object.entries(user)
           .filter(
