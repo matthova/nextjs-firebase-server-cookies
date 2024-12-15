@@ -1,11 +1,13 @@
 "use client";
 
-import { signInWithGoogle } from "@/lib/firebase/auth";
+import { signUpWithGoogle } from "@/lib/firebase/auth";
 
 export function SignIn() {
   return (
     <div>
-      <button onClick={() => signInWithGoogle()}>Sign in</button>
+      <button onClick={() => signUpWithGoogle({ signInIfAccountExists: true })}>
+        Sign in
+      </button>
     </div>
   );
 }

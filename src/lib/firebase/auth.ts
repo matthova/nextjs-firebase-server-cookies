@@ -1,52 +1,36 @@
 import {
   GoogleAuthProvider,
   linkWithPopup,
-  updateProfile,
   signInWithRedirect,
 } from "firebase/auth";
 
 import { auth } from "./clientApp";
 
-export async function signUpWithGoogle() {
+export async function signUpWithGoogle({
+  signInIfAccountExists = false,
+}: { signInIfAccountExists?: boolean } = {}) {
   const provider = new GoogleAuthProvider();
-  provider.addScope("profile");
-  provider.addScope("email");
 
+  const currentUser = auth.currentUser;
   try {
-    if (auth.currentUser?.isAnonymous) {
-      const result = await linkWithPopup(auth.currentUser, provider);
-      await updateProfile(auth.currentUser, {
-        displayName:
-          auth.currentUser.displayName ??
-          result.user.providerData.find((p) => p.displayName)?.displayName,
-        photoURL:
-          auth.currentUser.photoURL ??
-          result.user.providerData.find((p) => p.photoURL)?.photoURL,
-      });
-    } else {
-      console.error("Error signing in with Google: User is not anonymous");
+    if (currentUser == null || !currentUser?.isAnonymous) {
+      throw new Error("User is not anonymous");
     }
+    await linkWithPopup(currentUser, provider);
   } catch (error) {
-    // @ts-expect-error does too have a code
-    if (error?.code == "auth/credential-already-in-use") {
+    if (
+      currentUser == null ||
+      // @ts-expect-error does too have a code
+      error?.code == "auth/credential-already-in-use"
+    ) {
+      if (signInIfAccountExists) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
       console.error("Error signing in with Google: Credential already in use");
       alert("This Google account is already linked to another account");
       return;
     }
-    console.error("Error signing in with Google", error);
-  }
-}
-
-export async function signInWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  // Uncomment this if you want to allow switching between multiple gmail accounts
-  // provider.setCustomParameters({
-  //   prompt: "select_account",
-  // });
-
-  try {
-    await signInWithRedirect(auth, provider);
-  } catch (error) {
     console.error("Error signing in with Google", error);
   }
 }
