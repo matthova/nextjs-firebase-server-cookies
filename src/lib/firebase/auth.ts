@@ -9,6 +9,8 @@ import { auth } from "./clientApp";
 
 export async function signUpWithGoogle() {
   const provider = new GoogleAuthProvider();
+  provider.addScope("profile");
+  provider.addScope("email");
 
   try {
     if (auth.currentUser?.isAnonymous) {
