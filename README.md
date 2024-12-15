@@ -1,5 +1,7 @@
 # Firebase User flows with Anonymous Users
 
+## Checkout the live site [here](https://nextjs-firebase-server-cookies.vercel.app/)
+
 This is a minimal webapp which showcases some of the most common "user flows" with Firebase Auth. One distinct feature of this project is that we offer persistent data for a user, even if they haven't yet created an account, and we maintain that data for the user once they create an account.
 
 ## Firebase Sign In Redirect Setup
