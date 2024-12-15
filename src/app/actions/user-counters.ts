@@ -41,7 +41,7 @@ export async function getUserCounter(): Promise<number> {
   const { currentUser } = await getAuthenticatedAppForUser();
 
   if (currentUser == null) {
-    throw new Error("Cannot get counter of unauthenticated user");
+    return 0;
   }
 
   const snapshot = await getFirebaseAdminApp()
