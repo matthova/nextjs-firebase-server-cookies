@@ -1,5 +1,5 @@
 import { CtaButton, UserCounter, UserInfo } from "./PageClient";
-import { getUserCounter, incrementCounter } from "./actions/user-counters";
+import { getUserCounter, incrementCounter } from "@/actions/user-counters";
 
 export default async function Home() {
   const count = await getUserCounter();

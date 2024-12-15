@@ -30,6 +30,8 @@ export async function signUpWithGoogle() {
     // @ts-expect-error does too have a code
     if (error?.code == "auth/credential-already-in-use") {
       console.error("Error signing in with Google: Credential already in use");
+      alert("This Google account is already linked to another account");
+      return;
     }
     console.error("Error signing in with Google", error);
   }
@@ -37,6 +39,11 @@ export async function signUpWithGoogle() {
 
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
+  // Uncomment this if you want to allow switching between multiple gmail accounts
+  // provider.setCustomParameters({
+  //   prompt: "select_account",
+  // });
+
   try {
     await signInWithRedirect(auth, provider);
   } catch (error) {

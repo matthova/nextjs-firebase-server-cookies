@@ -94,7 +94,8 @@ sequenceDiagram
     C->>A: Return an anonymous user
     A->>B: Update user's cookies
     B->>A: Return updated cookies
-    A->>A: Re-render site with newly-minted credentials
+    A->>B: Refresh site with newly-minted credentials
+    B->>A: Site served with anonymous user
 ```
 
 ### Upgrading an anonymous user to a registered user
@@ -110,7 +111,8 @@ sequenceDiagram
     A->>A: Click to "Sign Up"
     A->>C: Request to link an anonymous user to a Firebase Provider type
     C->>A: Return updated user
-    A->>A: Re-render site with upgraded credentials
+    A->>B: Refresh site with updated credentials
+    B->>A: Site served with same user id and updated credentials
 ```
 
 ### Signing In
@@ -126,11 +128,11 @@ sequenceDiagram
     Note over A,C: Anonymous user already created
     A->>A: Click to "Sign In"
     A->>A: Warn user that any existing<br/>content will not be saved
-    A->>C: Request to link an anonymous user to a Firebase Provider type
-    C->>A: Return updated user
+    A->>C: Request to sign in
+    C->>A: Return user
     A->>B: Update user's cookies
     B->>A: Return updated cookies
-    A->>B: Re-fetch the site with the newly found user
+    A->>B: Re-fetch the site with the newly signed-in user
     B->>A: Serve website for authenticated user
 ```
 
@@ -148,7 +150,8 @@ sequenceDiagram
     C->>A: Handle Firebase Logout Reply
     A->>B: Update user's cookies
     B->>A: Return updated cookies
-    A->>A: Route user to a "Login" page
+    A->>B: Fetch '/sign-in' page
+    B->>A: Serve '/sign-in' page
 ```
 
 ### Handle attempting to register an existing email address
@@ -163,21 +166,5 @@ sequenceDiagram
     A->>C: Request to link an account
     C->>A: Request fails due to existing account
     A->>A: Display error
-    A->>A: Route user to login?
-```
-
-### Handle a signed in user with no cookies loading the site
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as Client
-    participant B as Server
-    participant C as Firebase
-    Note over A,C: User has already logged in, however we haven't yet set cookies
-    A->>C: Fetch existing user
-    C->>A: Return user
-    A->>B: Update user's cookies
-    B->>A: Return updated cookies
-    A->>A: Re-render site with newly-minted credentials
+    A->>A: Potentially - Route user to sign-in?
 ```

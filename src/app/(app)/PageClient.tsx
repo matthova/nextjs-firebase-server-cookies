@@ -8,6 +8,7 @@ import {
   signUpWithGoogle,
 } from "@/lib/firebase/auth";
 import React from "react";
+import Image from "next/image";
 
 export function CtaButton() {
   const { user } = useUser();
@@ -29,6 +30,7 @@ export function CtaButton() {
   }
 
   async function handleSignIn() {
+    // TODO - consider warning user existing content will be lost if they sign in
     try {
       await signInWithGoogle();
     } catch (ex) {
@@ -68,17 +70,26 @@ export function UserInfo() {
       <h1>
         <b>User</b>
       </h1>
-      {Object.entries(user)
-        .filter(
-          ([key]) =>
-            !key.toLowerCase().includes("token") &&
-            !["proactiveRefresh", "auth"].includes(key)
-        )
-        .map(([key, value]) => (
-          <div key={key}>
-            {key}: {JSON.stringify(value)}
-          </div>
-        ))}
+      <div>
+        <div>Is Anonymous: {user.isAnonymous ? "true" : "false"}</div>
+        {user.displayName == null || user.displayName === "" ? null : (
+          <div>{user.displayName}</div>
+        )}
+        {user.photoURL == null || user.photoURL === "" ? null : (
+          <img src={user.photoURL} alt="User profile" />
+        )}
+        {/* {Object.entries(user)
+          .filter(
+            ([key]) =>
+              !key.toLowerCase().includes("token") &&
+              !["proactiveRefresh", "auth"].includes(key)
+          )
+          .map(([key, value]) => (
+            <div key={key}>
+              {key}: {JSON.stringify(value)}
+            </div>
+          ))} */}
+      </div>
     </>
   );
 }

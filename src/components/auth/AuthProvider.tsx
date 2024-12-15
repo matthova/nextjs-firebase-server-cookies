@@ -11,28 +11,48 @@ import * as React from "react";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { AuthContext } from "./AuthContext";
 import { auth } from "@/lib/firebase/clientApp";
+import { useRouter } from "next/navigation";
+import { SignIn } from "./SignIn";
 
 export function AuthProvider({
   children,
   initialUser,
+  isSignInPage = false,
 }: {
   children: React.ReactNode;
   initialUser: User | null;
+  isSignInPage?: boolean;
 }) {
+  const router = useRouter();
   const [user, setUser] = React.useState<User | null>(initialUser);
+  const userRef = React.useRef<User | null>(user);
+  React.useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   const [onIdTokenChangedInitialized, setOnIdTokenChangedInitialized] =
     React.useState(false);
 
   React.useEffect(() => {
-    const unsubscribeIdTokenChange = onIdTokenChanged(auth, async (user) => {
-      if (user) {
+    const unsubscribeIdTokenChange = onIdTokenChanged(auth, async (newUser) => {
+      if (newUser) {
         // Have to destructure in order to trigger a re-render
         setUser({
-          ...user,
+          ...newUser,
         });
-        const idToken = await user.getIdToken();
+        const idToken = await newUser.getIdToken();
         setCookie("__session", idToken);
+        if (isSignInPage) {
+          router.push("/");
+        } else {
+          router.refresh();
+        }
       } else {
+        // On initial load there may be no user. Only set to null if there was a user before
+        if (userRef.current != null) {
+          setUser(null);
+          router.push("/sign-in");
+        }
         deleteCookie("__session");
       }
       if (!onIdTokenChangedInitialized) {
@@ -43,13 +63,17 @@ export function AuthProvider({
     let priorCookieValue: string | undefined;
     const unsubscribeBeforeAuthStateChanged = beforeAuthStateChanged(
       auth,
-      async (user) => {
+      async (newUser) => {
         priorCookieValue = await getCookie("__session");
-        const idToken = await user?.getIdToken();
+        const idToken = await newUser?.getIdToken();
         if (idToken) {
           setCookie("__session", idToken);
         } else {
           deleteCookie("__session");
+          if (userRef.current != null) {
+            setUser(null);
+            router.push("/sign-in");
+          }
         }
       },
       async () => {
@@ -66,14 +90,22 @@ export function AuthProvider({
       unsubscribeIdTokenChange();
       unsubscribeBeforeAuthStateChanged();
     };
-  }, [onIdTokenChangedInitialized]);
+  }, [isSignInPage, onIdTokenChangedInitialized, router]);
 
   React.useEffect(() => {
-    if (initialUser == null && user == null && !onIdTokenChangedInitialized) {
+    if (
+      initialUser == null &&
+      user == null &&
+      !onIdTokenChangedInitialized &&
+      !isSignInPage
+    ) {
       signInAnonymously(getAuth());
     }
-  }, [initialUser, onIdTokenChangedInitialized, user]);
+  }, [initialUser, isSignInPage, onIdTokenChangedInitialized, user]);
 
+  if (user == null && isSignInPage) {
+    return <SignIn />;
+  }
   if (user == null) {
     return <div>Loading...</div>;
   }
