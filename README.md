@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Firebase User flows with Anonymous Users
 
-## Getting Started
+This is a minimal webapp which showcases some of the most common "user flows" with Firebase Auth. One distinct feature of this project is that we offer persistent data for a user, even if they haven't yet created an account, and we maintain that data for the user once they create an account.
 
-First, run the development server:
+#### Things this doc does not cover (yet)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Password reset / recovery via email
+- MFA support
+- GDPR support
+- Account deletion
+- Purging anonymous accounts > 30 days old
+
+### User definitions
+
+| Type of user   | Description                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Anonymous**  | A placeholder user that is not attached to an auth provider, but allows us to keep track of the person's session. |
+| **Registered** | A user that has created an account and has a valid email associated with their account                            |
+
+## Key User Flows
+
+- [Creating an anonymous user](#creating-an-anonymous-user)
+- [Upgrading an anonymous user to a registered user](#upgrading-an-anonymous-user-to-a-registered-user)
+- [Signing in](#signing-in)
+- [Signing out](#signing-out)
+- [Handle attempting to registering an existing email address](#handle-attempting-to-registering-an-existing-email-address)
+- [Handle a signed in user with no cookies loading the site](#handle-attempting-to-registering-an-existing-email-address)
+
+### Creating an anonymous user
+
+This happens during a user's first visit to the website regardless if they have an account or not.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    A->>B: Request site
+    B->>B: No user found (via cookies)
+    B->>A: Return generic site with Loading UI
+    A->>C: Create an anonymous user
+    C->>A: Return an anonymous user
+    A->>B: Update user's cookies
+    B->>A: Return updated cookies
+    A->>A: Re-render site with newly-minted credentials
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Upgrading an anonymous user to a registered user
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+An anonymous user will be able to "Sign Up". In this flow we convert the anonmyous user to a registered user, while maintaining their user id and existing data created while an anonymous user.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    A->>A: Click to "Sign Up"
+    A->>C: Request to link an anonymous user to a Firebase Provider type
+    C->>A: Return updated user
+    A->>A: Re-render site with upgraded credentials
+```
 
-## Learn More
+### Signing In
 
-To learn more about Next.js, take a look at the following resources:
+An anonymous user will be able to "Sign In". In this flow we ditch the anonymous user and load the regular user.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    Note over A,C: Anonymous user already created
+    A->>A: Click to "Sign In"
+    A->>A: Warn user that any existing<br/>content will not be saved
+    A->>C: Request to link an anonymous user to a Firebase Provider type
+    C->>A: Return updated user
+    A->>B: Update user's cookies
+    B->>A: Return updated cookies
+    A->>B: Re-fetch the site with the newly found user
+    B->>A: Serve website for authenticated user
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Signing out
 
-## Deploy on Vercel
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    Note over A,C: User is logged in
+    A->>A: Click to sign out
+    A->>C: Handle Firebase Logout Request
+    C->>A: Handle Firebase Logout Reply
+    A->>B: Update user's cookies
+    B->>A: Return updated cookies
+    A->>A: Route user to a "Login" page
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Handle attempting to register an existing email address
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    Note over A,C: Anonymous user already created
+    A->>C: Request to link an account
+    C->>A: Request fails due to existing account
+    A->>A: Display error
+    A->>A: Route user to login?
+```
+
+### Handle a signed in user with no cookies loading the site
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Client
+    participant B as Server
+    participant C as Firebase
+    Note over A,C: User has already logged in, however we haven't yet set cookies
+    A->>C: Fetch existing user
+    C->>A: Return user
+    A->>B: Update user's cookies
+    B->>A: Return updated cookies
+    A->>A: Re-render site with newly-minted credentials
+```

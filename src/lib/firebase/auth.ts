@@ -1,6 +1,5 @@
 import {
   GoogleAuthProvider,
-  signInWithPopup,
   linkWithPopup,
   updateProfile,
   signInWithRedirect,
@@ -8,7 +7,7 @@ import {
 
 import { auth } from "./clientApp";
 
-export async function signInWithGoogle() {
+export async function signUpWithGoogle() {
   const provider = new GoogleAuthProvider();
 
   try {
@@ -23,13 +22,22 @@ export async function signInWithGoogle() {
           result.user.providerData.find((p) => p.photoURL)?.photoURL,
       });
     } else {
-      await signInWithPopup(auth, provider);
+      console.error("Error signing in with Google: User is not anonymous");
     }
   } catch (error) {
     // @ts-expect-error does too have a code
     if (error?.code == "auth/credential-already-in-use") {
-      await signInWithRedirect(auth, provider);
+      console.error("Error signing in with Google: Credential already in use");
     }
+    console.error("Error signing in with Google", error);
+  }
+}
+
+export async function signInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithRedirect(auth, provider);
+  } catch (error) {
     console.error("Error signing in with Google", error);
   }
 }

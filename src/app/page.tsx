@@ -1,14 +1,17 @@
 "use client";
 
 import { useUser } from "@/components/auth/useUser";
-import { signInWithGoogle } from "@/lib/firebase/auth";
-import { getAuth, signOut } from "firebase/auth";
+import {
+  signInWithGoogle,
+  signOut,
+  signUpWithGoogle,
+} from "@/lib/firebase/auth";
 
 export default function Home() {
   const { user } = useUser();
 
   return (
-    <div>
+    <div className="p-4">
       <CtaButton />
       <br />
       <h1>User</h1>
@@ -33,9 +36,17 @@ function CtaButton() {
 
   async function handleSignOut() {
     try {
-      await signOut(getAuth());
+      await signOut();
     } catch (ex) {
       console.error("Sign out failure", ex);
+    }
+  }
+
+  async function handleSignUp() {
+    try {
+      await signUpWithGoogle();
+    } catch (ex) {
+      console.error("Google Sign up failure", ex);
     }
   }
 
@@ -49,8 +60,19 @@ function CtaButton() {
 
   if (user.isAnonymous) {
     return (
-      <div>
-        <button onClick={handleSignIn}>Sign in with Google</button>
+      <div className="flex gap-3">
+        <button
+          className="p-1 border-solid border border-foreground"
+          onClick={handleSignUp}
+        >
+          Sign up with Google
+        </button>
+        <button
+          className="p-1 border-solid border border-foreground"
+          onClick={handleSignIn}
+        >
+          Sign in with Google
+        </button>
       </div>
     );
   }

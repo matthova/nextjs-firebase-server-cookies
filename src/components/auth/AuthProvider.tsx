@@ -21,11 +21,14 @@ export function AuthProvider({
   const [user, setUser] = React.useState<User | null>(initialUser);
 
   React.useEffect(() => {
-    const unsubscribeItTokenChange = onIdTokenChanged(
+    const unsubscribeIdTokenChange = onIdTokenChanged(
       getAuth(),
       async (user) => {
         if (user) {
-          setUser(user);
+          // Have to destructure in order to trigger a re-render
+          setUser({
+            ...user,
+          });
           const idToken = await user.getIdToken();
           setCookie("__session", idToken);
         } else {
@@ -57,7 +60,7 @@ export function AuthProvider({
     );
 
     return () => {
-      unsubscribeItTokenChange();
+      unsubscribeIdTokenChange();
       unsubscribeBeforeAuthStateChanged();
     };
   }, []);
