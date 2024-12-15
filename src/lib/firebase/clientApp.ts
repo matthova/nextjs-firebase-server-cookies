@@ -11,26 +11,29 @@ export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 export const storage = getStorage(firebaseApp);
 
-auth.authStateReady().then(() => {
-  getRedirectResult(auth)
-    .then((result) => {
-      console.log("Redirect result", result);
-      if (result == null) {
-        throw new Error("No result");
-      }
-      // This gives you a Google Access Token. You can use it to access Google APIs.
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      if (credential == null) {
-        throw new Error("No credential");
-      }
-      const token = credential.accessToken;
+// Avoid running during SSR
+if (typeof window !== "undefined") {
+  auth.authStateReady().then(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        console.log("Redirect result", result);
+        if (result == null) {
+          throw new Error("No result");
+        }
+        // This gives you a Google Access Token. You can use it to access Google APIs.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential == null) {
+          throw new Error("No credential");
+        }
+        const token = credential.accessToken;
 
-      // The signed-in user info.
-      const user = result.user;
-      console.log("handle signin now", token, user);
-    })
-    .catch((error) => {
-      console.log("redirect result error", error);
-      // Handle Errors here.
-    });
-});
+        // The signed-in user info.
+        const user = result.user;
+        console.log("handle signin now", token, user);
+      })
+      .catch((error) => {
+        console.log("redirect result error", error);
+        // Handle Errors here.
+      });
+  });
+}
