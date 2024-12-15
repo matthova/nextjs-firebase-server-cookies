@@ -5,8 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/__/auth/:path*",
-        destination:
-          "https://hova-labs-nextjs-firebase-demo.firebaseapp.com/__/auth/:path*",
+        destination: `https://${process.env.AUTH_DOMAIN_ORIGIN}/__/auth/:path*`,
       },
     ];
   },
