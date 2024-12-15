@@ -76,8 +76,7 @@ From Google Cloud: "Note: It may take 5 minutes to a few hours for settings to t
 - [Upgrading an anonymous user to a registered user](#upgrading-an-anonymous-user-to-a-registered-user)
 - [Signing in](#signing-in)
 - [Signing out](#signing-out)
-- [Handle attempting to registering an existing email address](#handle-attempting-to-registering-an-existing-email-address)
-- [Handle a signed in user with no cookies loading the site](#handle-attempting-to-registering-an-existing-email-address)
+- [Handle attempting to register an existing email address](#handle-attempting-to-register-an-existing-email-address)
 
 ### Creating an anonymous user
 
