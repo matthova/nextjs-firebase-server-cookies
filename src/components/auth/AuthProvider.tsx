@@ -19,6 +19,8 @@ export function AuthProvider({
   initialUser: User | null;
 }) {
   const [user, setUser] = React.useState<User | null>(initialUser);
+  const [onIdTokenChangedInitialized, setOnIdTokenChangedInitialized] =
+    React.useState(false);
 
   React.useEffect(() => {
     const unsubscribeIdTokenChange = onIdTokenChanged(
@@ -33,6 +35,9 @@ export function AuthProvider({
           setCookie("__session", idToken);
         } else {
           deleteCookie("__session");
+        }
+        if (!onIdTokenChangedInitialized) {
+          setOnIdTokenChangedInitialized(true);
         }
       }
     );
@@ -63,13 +68,13 @@ export function AuthProvider({
       unsubscribeIdTokenChange();
       unsubscribeBeforeAuthStateChanged();
     };
-  }, []);
+  }, [onIdTokenChangedInitialized]);
 
   React.useEffect(() => {
-    if (initialUser == null) {
+    if (initialUser == null && user == null && !onIdTokenChangedInitialized) {
       signInAnonymously(getAuth());
     }
-  }, [initialUser]);
+  }, [initialUser, onIdTokenChangedInitialized, user]);
 
   if (user == null) {
     return <div>Loading...</div>;
