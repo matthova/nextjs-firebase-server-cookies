@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@uidotdev/usehooks": "^2.4.1",
     "cookies-next": "^5.0.2",
     "firebase": "^11.1.0",
     "firebase-admin": "^13.0.1",

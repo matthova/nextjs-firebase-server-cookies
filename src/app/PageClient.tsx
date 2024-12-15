@@ -1,11 +1,13 @@
 "use client";
 
+import { usePrevious } from "@uidotdev/usehooks";
 import { useUser } from "@/components/auth/useUser";
 import {
   signInWithGoogle,
   signOut,
   signUpWithGoogle,
 } from "@/lib/firebase/auth";
+import React from "react";
 
 export function CtaButton() {
   const { user } = useUser();
@@ -82,12 +84,28 @@ export function UserInfo() {
 }
 
 export function UserCounter({
-  count,
-  increment,
+  count: countProp,
+  increment: incrementProp,
 }: {
   count: number;
   increment: () => void;
 }) {
+  const previousCountProp = usePrevious(countProp);
+  const [count, setCount] = React.useState(countProp);
+
+  function increment() {
+    incrementProp();
+    setCount((count) => {
+      return count + 1;
+    });
+  }
+
+  React.useEffect(() => {
+    if (previousCountProp != countProp) {
+      setCount(countProp);
+    }
+  }, [countProp, previousCountProp]);
+
   return (
     <div>
       <h1>

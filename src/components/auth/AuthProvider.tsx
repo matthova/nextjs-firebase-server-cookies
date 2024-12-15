@@ -10,6 +10,7 @@ import {
 import * as React from "react";
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { AuthContext } from "./AuthContext";
+import { auth } from "@/lib/firebase/clientApp";
 
 export function AuthProvider({
   children,
@@ -23,28 +24,25 @@ export function AuthProvider({
     React.useState(false);
 
   React.useEffect(() => {
-    const unsubscribeIdTokenChange = onIdTokenChanged(
-      getAuth(),
-      async (user) => {
-        if (user) {
-          // Have to destructure in order to trigger a re-render
-          setUser({
-            ...user,
-          });
-          const idToken = await user.getIdToken();
-          setCookie("__session", idToken);
-        } else {
-          deleteCookie("__session");
-        }
-        if (!onIdTokenChangedInitialized) {
-          setOnIdTokenChangedInitialized(true);
-        }
+    const unsubscribeIdTokenChange = onIdTokenChanged(auth, async (user) => {
+      if (user) {
+        // Have to destructure in order to trigger a re-render
+        setUser({
+          ...user,
+        });
+        const idToken = await user.getIdToken();
+        setCookie("__session", idToken);
+      } else {
+        deleteCookie("__session");
       }
-    );
+      if (!onIdTokenChangedInitialized) {
+        setOnIdTokenChangedInitialized(true);
+      }
+    });
 
     let priorCookieValue: string | undefined;
     const unsubscribeBeforeAuthStateChanged = beforeAuthStateChanged(
-      getAuth(),
+      auth,
       async (user) => {
         priorCookieValue = await getCookie("__session");
         const idToken = await user?.getIdToken();
