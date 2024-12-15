@@ -2,13 +2,13 @@
 
 This is a minimal webapp which showcases some of the most common "user flows" with Firebase Auth. One distinct feature of this project is that we offer persistent data for a user, even if they haven't yet created an account, and we maintain that data for the user once they create an account.
 
-## Setup
+## Firebase Sign In Redirect Setup
 
 When setting up support for sign-in I followed instructions from [this Github comment](https://github.com/firebase/firebase-js-sdk/issues/7342#issuecomment-2133453309)
 
 <details>
   <summary>Firebase Config Setup Details</summary>
-(Copied directly from that comment)
+(Copied directly from that comment)  
 For people who use Next.js and do not use Firebase Hosting, try option 3 from https://firebase.google.com/docs/auth/web/redirect-best-practices. I could make it work by following these steps:
  
 1. Set `authDomain` to localhost or production-url based on current environment.
