@@ -37,13 +37,12 @@ export default async function RootLayout({
           <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
         </div>
         <footer className="flex-none">
-          Check out the code{" "}
           <a
             target="_blank"
             rel="nooper noreferrer"
             href="https://github.com/matthova/nextjs-firebase-server-cookies"
           >
-            here
+            Check out the code on Github
           </a>
         </footer>
       </body>
