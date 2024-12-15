@@ -8,7 +8,6 @@ import {
   signUpWithGoogle,
 } from "@/lib/firebase/auth";
 import React from "react";
-import Image from "next/image";
 
 export function CtaButton() {
   const { user } = useUser();

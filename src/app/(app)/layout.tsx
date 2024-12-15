@@ -29,11 +29,23 @@ export default async function RootLayout({
   const initialUser = JSON.parse(JSON.stringify(currentUser));
 
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`h-full flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
+        <div className="flex-1">
+          <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
+        </div>
+        <footer className="flex-none">
+          Check out the code{" "}
+          <a
+            target="_blank"
+            rel="nooper noreferrer"
+            href="https://github.com/matthova/nextjs-firebase-server-cookies"
+          >
+            here
+          </a>
+        </footer>
       </body>
     </html>
   );
