@@ -12,7 +12,6 @@ import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { AuthContext } from "./AuthContext";
 import { auth } from "@/lib/firebase/clientApp";
 import { useRouter } from "next/navigation";
-import { SignIn } from "./SignIn";
 
 export function AuthProvider({
   children,
@@ -104,7 +103,7 @@ export function AuthProvider({
   }, [initialUser, isSignInPage, onIdTokenChangedInitialized, user]);
 
   if (user == null && isSignInPage) {
-    return <SignIn />;
+    return <>{children}</>;
   }
   if (user == null) {
     return <div>Loading...</div>;
